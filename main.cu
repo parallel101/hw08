@@ -30,7 +30,7 @@ int main() {
     std::vector<int, CudaAllocator<int>> counter(1);
 
     // fill_sin 改成“网格跨步循环”以后，这里三重尖括号里的参数如何调整？10 分
-    fill_sin<<<n / 1024, 1024>>>(arr.data(), n);
+    fill_sin<<<1, 1024>>>(arr.data(), n);
 
     // 这里的“边角料法”对于不是 1024 整数倍的 n 会出错，为什么？请修复：10 分
     filter_positive<<<(n+1023) / 1024, 1024>>>(counter.data(), res.data(), arr.data(), n);
