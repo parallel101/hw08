@@ -14,13 +14,12 @@ __global__ void fill_sin(int *arr, int n) {
 }
 
 __global__ void filter_positive(int *counter, int *res, int const *arr, int n) {
-    int i = blockIdx.x * blockDim.x + threadIdx.x;
-    if (i > n) return;
-    if (arr[i] >= 0) {
-        // 这里有什么问题？请改正：10 分
-        // answer : 多线程会同时访问和修改counter，需要使用原子操作。
-        int loc = atomicAdd(counter, 1);
-        res[loc] = n;
+    for(int i = blockDim.x * blockIdx.x + threadIdx.x;
+        i < n ; i += blockDim.x * gridDim.x){
+        if(arr[i] >= 0 ){
+            int loc = atomicAdd(counter,1);
+            res[loc] = n;
+        }
     }
 }
 
@@ -49,6 +48,7 @@ int main() {
         printf("Result too short! %d <= %d\n", counter[0], n / 50);
         return -1;
     }
+    
     for (int i = 0; i < counter[0]; i++) {
         if (res[i] < 0) {
             printf("Wrong At %d: %f < 0\n", i, res[i]);
