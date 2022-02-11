@@ -4,18 +4,19 @@
 #include "helper_cuda.h"
 #include <cmath>
 #include <vector>
-#include <thrust/device_vector.h>  // 如果想用 thrust 也是没问题的
+// #include <thrust/device_vector.h>  // 如果想用 thrust 也是没问题的
 
 // 这是基于“边角料法”的，请把他改成基于“网格跨步循环”的：10 分
-__global__ void fill_sin(int *arr, int n) {
-    for(int i = blockIdx.x * blockDim.x + threadIdx.x; i < n; i+=blockDim.x*gridDim.x){
-        arr[i] = sinf(i);
-    }    
+template<class Func>
+__global__ void parallel_for(int n, Func func){
+    for(int i = blockDim.x * blockIdx.x + threadIdx.x;
+        i < n ; i += blockDim.x * gridDim.x){
+        func(i);
+    }
 }
 
 __global__ void filter_positive(int *counter, int *res, int const *arr, int n) {
-    for(int i = blockDim.x * blockIdx.x + threadIdx.x;
-        i < n ; i += blockDim.x * gridDim.x){
+    for(int i = blockDim.x * blockIdx.x + threadIdx.x; i < n ; i += blockDim.x * gridDim.x){
         if(arr[i] >= 0 ){
             int loc = atomicAdd(counter,1);
             res[loc] = n;
@@ -30,7 +31,9 @@ int main() {
     std::vector<int, CudaAllocator<int>> counter(1);
 
     // fill_sin 改成“网格跨步循环”以后，这里三重尖括号里的参数如何调整？10 分
-    fill_sin<<<32, 1024>>>(arr.data(), n);
+    parallel_for<<<32,1024>>>(n,[arr_data = arr.data()] __device__ (int i){
+        arr_data[i] = sinf(i);
+    });
 
     // 这里的“边角料法”对于不是 1024 整数倍的 n 会出错，为什么？请修复：10 分
     // ans: 会缺少数据，应该向上取整，让总线程数大于n。
@@ -38,17 +41,13 @@ int main() {
 
     // 这里 CPU 访问数据前漏了一步什么操作？请补上：10 分
     // ans: 要将数据从cuda拷贝到内存上。
-    int counter_cpu;
-    std::vector<int> res_cpu(n);
-    checkCudaErrors(cudaMemcpy(&counter_cpu, counter.data(), sizeof(int), cudaMemcpyDeviceToHost));
-    checkCudaErrors(cudaMemcpy(res_cpu.data(), res.data(), sizeof(int)*res.size(), cudaMemcpyDeviceToHost));
-
+    checkCudaErrors(cudaDeviceSynchronize());
 
     if (counter[0] <= n / 50) {
         printf("Result too short! %d <= %d\n", counter[0], n / 50);
         return -1;
     }
-    
+
     for (int i = 0; i < counter[0]; i++) {
         if (res[i] < 0) {
             printf("Wrong At %d: %f < 0\n", i, res[i]);
