@@ -9,6 +9,17 @@ template <class T>
 struct CudaAllocator {
     using value_type = T;
 
+    CudaAllocator() noexcept {};
+    template<class U> CudaAllocator(const CudaAllocator<U>&) noexcept {}
+    template<class U> bool operator==(const CudaAllocator<U>&) const noexcept
+    {
+        return true;
+    }
+    template<class U> bool operator!=(const CudaAllocator<U>&) const noexcept
+    {
+        return false;
+    }
+
     T *allocate(size_t size) {
         T *ptr = nullptr;
         checkCudaErrors(cudaMallocManaged(&ptr, size * sizeof(T)));

@@ -5,10 +5,16 @@ set(CMAKE_CUDA_STANDARD 17)
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif()
+
+#set(CMAKE_CUDA_SEPARABLE_COMPILATION ON)
 # 如果需要指定显卡版本号的话：
-# set(CMAKE_CUDA_ARCHITECTURES 52)
+set(CMAKE_CUDA_ARCHITECTURES 75)
 
 project(hellocmake LANGUAGES CXX CUDA)
 
 add_executable(main main.cu)
+#add_executable(main test.cu)
+set_property(TARGET main PROPERTY CUDA_SEPARABLE_COMPILATION ON)
+
 target_include_directories(main PUBLIC include)
+target_compile_options(main PUBLIC $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
