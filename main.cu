@@ -39,7 +39,7 @@ int main() {
     checkCudaErrors(cudaMalloc(&counter, sizeof(int)));
 
     // 3. fill_sin 改成“网格跨步循环”以后，这里三重尖括号里的参数如何调整？10 分
-    // 答：改为 grid-stide loop 后，就不用保证 gridDim * blockDim == n 啦！
+    // 答：改为 grid-stride loop 后，就不用保证 gridDim * blockDim == n 啦！
     fill_sin << <32, 1024 >> > (arr, n);
 
     // 4. 这里的“边角料法”对于不是 1024 整数倍的 n 会出错，为什么？请修复：10 分
