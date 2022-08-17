@@ -40,10 +40,10 @@ int main() {
     // checkCudaErrors(cudaDeviceSynchronize());
     // TOCK(FILL_SIN);
 
-    TICK(filter_positive);
+    // TICK(filter_positive);
     filter_positive<n><<<(n + 1023) / 1024, 1024>>>(arr.data(), res.data(), counter.data());
     // checkCudaErrors(cudaDeviceSynchronize());
-    TOCK(filter_positive);
+    // TOCK(filter_positive);
 
     checkCudaErrors(cudaDeviceSynchronize());
     if (counter[0] <= n / 50) {
