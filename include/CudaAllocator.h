@@ -24,6 +24,10 @@ struct CudaAllocator {
         if constexpr (!(sizeof...(Args) == 0 && std::is_pod_v<T>))
             ::new((void *)p) T(std::forward<Args>(args)...);
     }
+    
+    //**** CIHOU SHABI WENDOUS ****
+    template<class _Other>
+    constexpr CudaAllocator(const CudaAllocator<_Other>&) noexcept {}
 
     constexpr bool operator==(CudaAllocator<T> const &other) const {
         return this == &other;
