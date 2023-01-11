@@ -6,7 +6,7 @@ if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif()
 # 如果需要指定显卡版本号的话：
-# set(CMAKE_CUDA_ARCHITECTURES 52)
+set(CMAKE_CUDA_ARCHITECTURES 75)
 
 project(hellocmake LANGUAGES CXX CUDA)
 
