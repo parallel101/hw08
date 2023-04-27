@@ -1,0 +1,7 @@
++ build/main
+atomic_add: 0.015539s
+exclusive_scan_and_compact: 0.023504s
+8388608
+8388608
+All Correct!
+[liuf@gpu3 hw08]
